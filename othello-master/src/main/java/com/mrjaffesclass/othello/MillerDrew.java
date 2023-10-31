@@ -9,12 +9,18 @@ import java.util.LinkedList;
 public class MillerDrew extends Player {
 
   private static int SEARCH_DEPTH = 4;
+  private Position bestCoordinate;
+  private Board newBoard;
+  private Player tempWhitePlayer;
+  private Player tempBlackPlayer;
   /**
    * Constructor
    * @param color Player color: one of Constants.BLACK or Constants.WHITE
    */
   public MillerDrew(int color) {
     super(color);
+    tempWhitePlayer = new Player(Constants.WHITE);
+    tempBlackPlayer = new Player(Constants.BLACK);
   }
 
   /**
@@ -25,7 +31,9 @@ public class MillerDrew extends Player {
   @Override
   public Position getNextMove(Board board) {
      /* Your code goes here */
-    //call minimax here
+    //call minimax here 
+    int bestValue = minimax(board, 0, true);
+    return bestCoordinate;
   }
 
   /**
@@ -108,8 +116,8 @@ public class MillerDrew extends Player {
       int bestValue = Integer.MIN_VALUE;
         ArrayList<Position> moves = this.getLegalMoves(gameBoard);
         for (Position move : moves) {
-          Board newBoard = cloneBoard(gameBoard);
-          processMove(newBoard, newBoard[move.getxCoordinate()][move.getyCoordinate()]);
+          newBoard = cloneBoard(gameBoard);
+          newBoard.makeMove(clonePlayer1, move);
           int v = minimax(newBoard, depth - 1, !maximizingPlayer);
           if (v > bestValue) {
             bestValue = v;
@@ -120,9 +128,9 @@ public class MillerDrew extends Player {
     }
     else {
       int bestValue = Integer.MAX_VALUE;
-      LinkedList<Coordinate> moves = generateMoves(gameBoard);
-      for (Coordinate move : moves) {
-        MyButton[][] newBoard = cloneBoard(gameBoard);
+      ArrayList<Position> moves = this.getLegalMoves(gameBoard);
+      for (Position move : moves) {
+        newBoard = cloneBoard(gameBoard);
         processMove(newBoard, newBoard[move.getxCoordinate()][move.getyCoordinate()]);
         int v = minimax(newBoard, depth - 1, !maximizingPlayer);
         if (v < bestValue) {
