@@ -11,16 +11,21 @@ public class MillerDrew extends Player {
   private static int SEARCH_DEPTH = 4;
   private Position bestCoordinate;
   private Board newBoard;
-  private Player tempWhitePlayer;
-  private Player tempBlackPlayer;
+  private Player clonePlayer1;
+  private Player invClonePlayer1;
   /**
    * Constructor
    * @param color Player color: one of Constants.BLACK or Constants.WHITE
    */
   public MillerDrew(int color) {
     super(color);
-    tempWhitePlayer = new Player(Constants.WHITE);
-    tempBlackPlayer = new Player(Constants.BLACK);
+    clonePlayer1 = new Player(color);
+    if (color == 1) {
+      color = -1;
+    } else {
+      color = 1;
+    }
+    invClonePlayer1 = new Player(color);
   }
 
   /**
@@ -32,7 +37,7 @@ public class MillerDrew extends Player {
   public Position getNextMove(Board board) {
      /* Your code goes here */
     //call minimax here 
-    int bestValue = minimax(board, 0, true);
+    int bestValue = minimax2(board, 0, 5);
     return bestCoordinate;
   }
 
@@ -107,38 +112,33 @@ public class MillerDrew extends Player {
     return originalBoard;
   }
 
-  public int minimax(Board gameBoard, int depth, boolean maximizingPlayer) {
-    if (depth == SEARCH_DEPTH) {
-      bestCoordinate = move;
-    }
-
-    if (maximizingPlayer) {
-      int bestValue = Integer.MIN_VALUE;
-        ArrayList<Position> moves = this.getLegalMoves(gameBoard);
+  public int minimax2(Board board, int depth, int max_depth) {
+    if (depth == max_depth) {
+      int score = evaluateBoard(board);
+      return score;
+    } else {
+      ArrayList<Position> moves = getLegalMoves(newBoard);
+      if (moves.size() == 0) {
+        return -1;
+      } else {
+        int best_score = Integer.MAX_VALUE;
+        Position best_move = moves.get(0);
         for (Position move : moves) {
-          newBoard = cloneBoard(gameBoard);
-          newBoard.makeMove(clonePlayer1, move);
-          int v = minimax(newBoard, depth - 1, !maximizingPlayer);
-          if (v > bestValue) {
-            bestValue = v;
-            bestCoordinate = move;
+          Board newBoard = cloneBoard(board);
+          if (depth % 2 == 0) {
+            newBoard.makeMove(clonePlayer1, move);
+          } else {
+            newBoard.makeMove(invClonePlayer1, move);
+          }
+          int new_score = minimax2(newBoard, depth+1, max_depth);
+          if (new_score > best_score) {
+            best_score = new_score;
+            best_move = move;
           }
         }
-        return bestValue;
-    }
-    else {
-      int bestValue = Integer.MAX_VALUE;
-      ArrayList<Position> moves = this.getLegalMoves(gameBoard);
-      for (Position move : moves) {
-        newBoard = cloneBoard(gameBoard);
-        processMove(newBoard, newBoard[move.getxCoordinate()][move.getyCoordinate()]);
-        int v = minimax(newBoard, depth - 1, !maximizingPlayer);
-        if (v < bestValue) {
-            bestValue = v;
-            bestCoordinate = move;
-          }
+        bestCoordinate = best_move;;
+        return best_score;
       }
-      return bestValue;
     }
   }
 
@@ -149,10 +149,10 @@ public class MillerDrew extends Player {
     for (int i = 0; i < Constants.SIZE; i++) {
       for (int j = 0; j < Constants.SIZE; j++) {
         Position temp = new Position(i, j);
-        Square getSColor = gameBoard.getSquare(temp);
-        if (getSColor.equals(Constants.BLACK)) {
+        Square tempSqu = gameBoard.getSquare(temp);
+        if (tempSqu.getStatus() == Constants.BLACK) {
             blackPieces++;
-        } else if (getSColor.equals(Constants.WHITE)) {
+        } else if (tempSqu.getStatus() == Constants.WHITE) {
             whitePieces++;
         }
       }
