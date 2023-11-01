@@ -149,10 +149,11 @@ public class MillerDrew extends Player {
     for (int i = 0; i < Constants.SIZE; i++) {
       for (int j = 0; j < Constants.SIZE; j++) {
         Position temp = new Position(i, j);
-        Square tempSqu = gameBoard.getSquare(temp);
-        if (tempSqu.getStatus() == Constants.BLACK) {
+        Square tempSquare = gameBoard.getSquare(temp);
+        int checkColor = tempSquare.getStatus();
+        if (checkColor == Constants.BLACK) {
             blackPieces++;
-        } else if (tempSqu.getStatus() == Constants.WHITE) {
+        } else if (checkColor == Constants.WHITE) {
             whitePieces++;
         }
       }
