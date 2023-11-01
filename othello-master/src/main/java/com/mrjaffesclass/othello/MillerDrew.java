@@ -94,7 +94,7 @@ public class MillerDrew extends Player {
    */
   public ArrayList<Position> getLegalMoves(Board board) {
     int color = this.getColor();
-    ArrayList list = new ArrayList<>();
+    ArrayList<Position> list = new ArrayList<>();
     for (int row = 0; row < Constants.SIZE; row++) {
       for (int col = 0; col < Constants.SIZE; col++) {
         if (board.getSquare(this, row, col).getStatus() == Constants.EMPTY) {
@@ -183,6 +183,11 @@ public class MillerDrew extends Player {
     if (gameBoard.getSquare(new Position(Constants.SIZE, Constants.SIZE)).getStatus() == Constants.WHITE) {
       whitePieces += cornerBonus;
     }
-    return whitePieces - blackPieces;
+    int tempColor = clonePlayer1.getColor();
+    if (tempColor == Constants.WHITE) {
+      return whitePieces - blackPieces;
+    } else {
+      return blackPieces - whitePieces;
+    }
   }
 }
