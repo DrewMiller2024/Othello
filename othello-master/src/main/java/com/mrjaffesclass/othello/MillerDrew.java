@@ -37,7 +37,7 @@ public class MillerDrew extends Player {
   public Position getNextMove(Board board) {
      /* Your code goes here */
     //call minimax here 
-    int bestValue = minimax2(board, 0, 5);
+    int bestValue = minimax2(board, 0);
     return bestCoordinate;
   }
 
@@ -112,8 +112,8 @@ public class MillerDrew extends Player {
     return originalBoard;
   }
 
-  public int minimax2(Board board, int depth, int max_depth) {
-    if (depth == max_depth) {
+  public int minimax2(Board board, int depth) {
+    if (depth == SEARCH_DEPTH) {
       int score = evaluateBoard(board);
       return score;
     } else {
@@ -130,7 +130,7 @@ public class MillerDrew extends Player {
           } else {
             newBoard.makeMove(invClonePlayer1, move);
           }
-          int new_score = minimax2(newBoard, depth+1, max_depth);
+          int new_score = minimax2(newBoard, depth+1);
           if (new_score > best_score) {
             best_score = new_score;
             best_move = move;
