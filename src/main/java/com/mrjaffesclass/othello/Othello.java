@@ -17,7 +17,7 @@ public class Othello {
    */
   public static void main(String[] args) {
     Controller c = new Controller( 
-      new TestPlayer(Constants.BLACK), 
+      new MillerDrew(Constants.BLACK), 
       new TestPlayer(Constants.WHITE)
     );
     c.displayMatchup();
