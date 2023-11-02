@@ -15,13 +15,6 @@ public class MillerDrew extends Player {
      */
     public MillerDrew(int color) {
         super(color);
-        clonePlayer = new Player(color);
-        if (color == 1) {
-            color = -1;
-        } else {
-            color = 1;
-        }
-        invClonePlayer = new Player(color);
     }
 
     public ArrayList<Position> getLegalMoves(Board board, Player playerToCheck) {
@@ -41,28 +34,38 @@ public class MillerDrew extends Player {
     public Position getNextMove(Board board) {
         /* Your code goes here */
         //call minimax here 
-        MiniMax mini = new MiniMax(board, 0, Integer.MIN_VALUE, null, this.getColor());
+        MiniMax mini = new MiniMax(board, 0, Integer.MIN_VALUE, null, this.getColor(), this);
         return mini.getMove();
     }
 
     class MiniMax {
 
         private final static int MAX_DEPTH = 4;
-        private Board cloneBoard;
-        private Position moveMade;
-        private final int color;
+        private Board board;
+        private ArrayList<Position> legalMoves = new ArrayList<>();
+        private Position move;
         private int eval;
+        private boolean isMaxPlayer;
+        private Player player;
 
-        MiniMax(Board board, int depth, int chosenScore, Position chosenMove, int color) {
-            this.color = color;
-            this.moveMade = chosenMove;
-            this.cloneBoard = board;
-            
+        public MiniMax(Board board, int depth, int chosenScore, Position chosenMove, int color, Player player) {
+            this.move = chosenMove;
+            this.board = board;
+            this.isMaxPlayer = isMaxPlayer;
+            this.player = player;
+                    
             if (depth == MAX_DEPTH) {
                 eval = evaluate(board);
-            }
+            } else {
+                getMoves();
+            } //endelse
         }
 
+        public void getMoves() {
+           Player tempPlayer = isMaxPlayer ? (player) : (new Player(player.getColor() * -1));
+           legalMoves = getLegalMoves(board, tempPlayer);
+        }
+        
         public int evaluate(Board gameBoard) {
             int newEval = 0;
             for (int i = 0; i < Constants.SIZE; i++) {
@@ -73,7 +76,7 @@ public class MillerDrew extends Player {
                         if (isCorner(i, j)) {
                             newEval += 10 * checkColor;
                         } else {
-                        newEval += 1 * checkColor;
+                            newEval += 1 * checkColor;
                         }
                     }
                 }
@@ -82,15 +85,18 @@ public class MillerDrew extends Player {
             newEval = newEval * color;
             return newEval;
         }
-        
+
         public boolean isCorner(int r, int c) {
             if (r == 0 && c == 0 || r == 0 && c == Constants.SIZE - 1) {
                 return true;
-            }
-            if (r == Constants.SIZE-1 && c == 0 || r == Constants.SIZE-1 && c == Constants.SIZE-1) {
+            } else if (r == Constants.SIZE - 1 && c == 0 || r == Constants.SIZE - 1 && c == Constants.SIZE - 1) {
                 return true;
             }
             return false;
+        }
+
+        public Position getMove() {
+            return this.move;
         }
     }
 }
