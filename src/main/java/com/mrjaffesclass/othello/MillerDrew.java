@@ -64,13 +64,13 @@ public class MillerDrew extends Player {
         }
 
         public int evaluate(Board gameBoard) {
-            int newEval;
+            int newEval = 0;
             for (int i = 0; i < Constants.SIZE; i++) {
                 for (int j = 0; j < Constants.SIZE; j++) {
                     Square tempSquare = gameBoard.getSquare(new Position(i, j));
                     int checkColor = tempSquare.getStatus();
                     if (checkColor != 0) {
-                        if (isCorner(tempSquare)) {
+                        if (isCorner(i, j)) {
                             newEval += 10 * checkColor;
                         } else {
                         newEval += 1 * checkColor;
@@ -83,8 +83,14 @@ public class MillerDrew extends Player {
             return newEval;
         }
         
-        public boolean isCorner(Position pos) {
-            if ()
+        public boolean isCorner(int r, int c) {
+            if (r == 0 && c == 0 || r == 0 && c == Constants.SIZE - 1) {
+                return true;
+            }
+            if (r == Constants.SIZE-1 && c == 0 || r == Constants.SIZE-1 && c == Constants.SIZE-1) {
+                return true;
+            }
+            return false;
         }
     }
 }
