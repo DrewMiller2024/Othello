@@ -12,17 +12,38 @@ package com.mrjaffesclass.othello;
  */
 public class Othello {
 
-  /**
-   * @param args the command line arguments
-   */
-  public static void main(String[] args) {
-    Controller c = new Controller( 
-      new MillerDrew(Constants.BLACK), 
-      new TestPlayer(Constants.WHITE)
-    );
-    c.displayMatchup();
-    int result = c.run();
-    System.exit(0);
-  }
+ 
+ public static void simulation(int repeatNum, Player player1, Player player2) throws InterruptedException {
+		int repeats = repeatNum;
+		int[] results = new int[repeats];
+		String p1Name = player1.getClass().getSimpleName();
+		String p2Name = player2.getClass().getSimpleName();
+		for(int i = 0; i < repeats; i++) {
+			System.out.println("Game: " + (i+1));
+			ControllerNoPrint c = new ControllerNoPrint( 
+			//Controller c = new Controller(
+			//ControllerRandomTesting c = new ControllerRandomTesting(
+				player1, player2
+			);
+			c.displayMatchup();
+			int result = c.run();
+			results[i] = result;
+		}
+		int blackWins = 0;
+		int whiteWins = 0;
+		int ties = 0;
+		for(int i : results) {
+			if(i==1) blackWins++;
+			if(i==2) whiteWins++;
+			if(i==3) ties++;
+		}
+		System.out.printf("In %d games, %s won: %d, %s won: %d, and %d were ties\n", repeats,p1Name, blackWins,p2Name, whiteWins, ties);
+	}
+	public static void main(String[] args) throws InterruptedException {
+		int repetitions = 10;
+		simulation(repetitions,new TestPlayer(Constants.BLACK), new MillerDrew(Constants.WHITE));
+		//simulation(repetitions, new RyanPlayerEvolved(Constants.BLACK), new TestPlayer(Constants.WHITE));	
+		System.exit(0);
+	}
   
 }

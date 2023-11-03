@@ -26,7 +26,7 @@ public class MillerDrew extends Player {
 
     class MiniMax {
 
-        private final static int MAX_DEPTH = 4;
+        private final static int MAX_DEPTH = 8;
         private int chosenScore;
         private Position chosenMove;
 
@@ -41,16 +41,21 @@ public class MillerDrew extends Player {
                 } else {
                     int bestScore = Integer.MIN_VALUE;
                     Position bestMove = new Position(0, 0);
-                    if (isMaxPlayer) {
-                        for (Position move : moves) {
-                            Board board2 = board;
-                            board2.makeMove(tempPlayer, move);
-                            MiniMax child = new MiniMax(board2, depth + 1, !isMaxPlayer, theMove, player);
-                            int score = child.getEval();
-                            if (score > bestScore) {
-                                bestScore = score;
-                                bestMove = move;
+                    for (Position move : moves) {
+                        Board board2 = new Board();
+                        for (int i = 0; i < Constants.SIZE; i++) {
+                            for (int j = 0; j < Constants.SIZE; j++) {
+                                Position pos = new Position(i, j);
+                                Square square = board.getSquare(pos);
+                                board2.setSquare(new Player(square.getStatus()), bestMove);
                             }
+                        }
+                        board2.makeMove(tempPlayer, move);
+                        MiniMax child = new MiniMax(board2, depth + 1, !isMaxPlayer, theMove, player);
+                        int score = child.getEval();
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = move;
                         }
                     }
                     chosenScore = bestScore;
@@ -69,9 +74,9 @@ public class MillerDrew extends Player {
                     int checkColor = tempSquare.getStatus();
                     if (checkColor != 0) {
                         if (isCorner(i, j)) {
-                            newEval += 10 * checkColor;
+                            newEval += 100 * checkColor;
                         } else {
-                            newEval += 1 * checkColor;
+                            //newEval += 1 * checkColor;
                         }
                     }
                 }

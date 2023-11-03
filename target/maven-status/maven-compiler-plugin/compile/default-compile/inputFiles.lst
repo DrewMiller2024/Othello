@@ -1,10 +1,13 @@
-/home/student/Othello/src/main/java/com/mrjaffesclass/othello/Constants.java
-/home/student/Othello/src/main/java/com/mrjaffesclass/othello/MillerDrew.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/RyanPlayer.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Othello.java
-/home/student/Othello/src/main/java/com/mrjaffesclass/othello/Player.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Position.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Directions.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Board.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Controller.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/TestPlayer.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/Constants.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/ControllerNoPrint.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/MillerDrew.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/RyanPlayer6.java
+/home/student/Othello/src/main/java/com/mrjaffesclass/othello/Player.java
 /home/student/Othello/src/main/java/com/mrjaffesclass/othello/Square.java
