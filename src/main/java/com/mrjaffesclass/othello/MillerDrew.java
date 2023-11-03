@@ -1,7 +1,6 @@
 package com.mrjaffesclass.othello;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * Test player
@@ -17,56 +16,52 @@ public class MillerDrew extends Player {
         super(color);
     }
 
-    public ArrayList<Position> getLegalMoves(Board board, Player playerToCheck) {
-        ArrayList<Position> list = new ArrayList<>();
-        for (int row = 0; row < Constants.SIZE; row++) {
-            for (int col = 0; col < Constants.SIZE; col++) {
-                Position testPosition = new Position(row, col);
-                if (board.isLegalMove(playerToCheck, testPosition)) {
-                    list.add(testPosition);
-                }
-            }
-        }
-        return list;
-    }
-
     @Override
     public Position getNextMove(Board board) {
         /* Your code goes here */
         //call minimax here 
-        MiniMax mini = new MiniMax(board, 0, Integer.MIN_VALUE, null, this.getColor(), this);
+        MiniMax mini = new MiniMax(board, 0, true, null, this);
         return mini.getMove();
     }
 
     class MiniMax {
 
         private final static int MAX_DEPTH = 4;
-        private Board board;
-        private ArrayList<Position> legalMoves = new ArrayList<>();
-        private Position move;
-        private int eval;
-        private boolean isMaxPlayer;
-        private Player player;
+        private int chosenScore;
+        private Position chosenMove;
 
-        public MiniMax(Board board, int depth, int chosenScore, Position chosenMove, int color, Player player) {
-            this.move = chosenMove;
-            this.board = board;
-            this.isMaxPlayer = isMaxPlayer;
-            this.player = player;
-                    
+        public MiniMax(Board board, int depth, boolean isMaxPlayer, Position theMove, Player player) {
             if (depth == MAX_DEPTH) {
-                eval = evaluate(board);
+                chosenScore = evaluate(board, player);
             } else {
-                getMoves();
-            } //endelse
+                Player tempPlayer = isMaxPlayer ? (player) : (new Player(player.getColor() * -1));
+                ArrayList<Position> moves = getMoves(board, tempPlayer);
+                if (moves.isEmpty()) {
+                    chosenScore = evaluate(board, player);
+                } else {
+                    int bestScore = Integer.MIN_VALUE;
+                    Position bestMove = new Position(0, 0);
+                    if (isMaxPlayer) {
+                        for (Position move : moves) {
+                            Board board2 = board;
+                            board2.makeMove(tempPlayer, move);
+                            MiniMax child = new MiniMax(board2, depth + 1, !isMaxPlayer, theMove, player);
+                            int score = child.getEval();
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestMove = move;
+                            }
+                        }
+                    }
+                    chosenScore = bestScore;
+                    if (depth == 0) {
+                        chosenMove = bestMove;
+                    }
+                }
+            }
         }
 
-        public void getMoves() {
-           Player tempPlayer = isMaxPlayer ? (player) : (new Player(player.getColor() * -1));
-           legalMoves = getLegalMoves(board, tempPlayer);
-        }
-        
-        public int evaluate(Board gameBoard) {
+        public int evaluate(Board gameBoard, Player player) {
             int newEval = 0;
             for (int i = 0; i < Constants.SIZE; i++) {
                 for (int j = 0; j < Constants.SIZE; j++) {
@@ -81,8 +76,7 @@ public class MillerDrew extends Player {
                     }
                 }
             }
-            //change newEval to be positive/negative in terms of player color
-            newEval = newEval * color;
+            newEval = newEval * player.getColor();
             return newEval;
         }
 
@@ -95,8 +89,25 @@ public class MillerDrew extends Player {
             return false;
         }
 
+        public ArrayList<Position> getMoves(Board board, Player playerToCheck) {
+            ArrayList<Position> list = new ArrayList<>();
+            for (int row = 0; row < Constants.SIZE; row++) {
+                for (int col = 0; col < Constants.SIZE; col++) {
+                    Position testPosition = new Position(row, col);
+                    if (board.isLegalMove(playerToCheck, testPosition)) {
+                        list.add(testPosition);
+                    }
+                }
+            }
+            return list;
+        }
+
+        public int getEval() {
+            return this.chosenScore;
+        }
+
         public Position getMove() {
-            return this.move;
+            return this.chosenMove;
         }
     }
 }
