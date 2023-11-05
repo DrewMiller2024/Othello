@@ -30,8 +30,7 @@ public class MillerDrew extends Player {
 
     public int MiniMax(Board board, int depth, int alpha, int beta, boolean isMaxPlayer, Position theMove, Player player) {
         if (depth == MAX_DEPTH) {
-            chosenScore = evaluate(board, player);
-            return chosenScore;
+            return evaluate(board, player);
         } else {
             ArrayList<Position> moves = getMoves(board, player);
             if (isMaxPlayer) {
@@ -58,8 +57,7 @@ public class MillerDrew extends Player {
                         break;  // Alpha-Beta Pruning
                     }
                 }
-                chosenScore = bestScore;
-                return chosenScore;
+                return bestScore;
             } else {
                 int bestScore = Integer.MAX_VALUE;
                 for (Position move : moves) {
@@ -84,13 +82,13 @@ public class MillerDrew extends Player {
                         break;  // Alpha-Beta Pruning
                     }
                 }
-                chosenScore = bestScore;
-                return chosenScore;
+                return bestScore;
             }
         }
     }
 
     public int evaluate(Board gameBoard, Player player) {
+        boolean corners = cornersTaken(gameBoard, player);
         boolean lateGame = cornersTaken(gameBoard, player) || gameBoard.countSquares(0) <= 30;
         int newEval = 0;
         for (int i = 0; i < Constants.SIZE; i++) {
@@ -98,13 +96,13 @@ public class MillerDrew extends Player {
                 Square tempSquare = gameBoard.getSquare(new Position(i, j));
                 int checkColor = tempSquare.getStatus();
                 if (checkColor != 0) {
-                    if (!lateGame) {
+                    if (!corners) {
                         if (isCorner(i, j)) {
-                            newEval += 100 * checkColor;
+                            newEval += 400 * checkColor;
                         }
                     } else {
                         if (isStable(i, j, gameBoard, checkColor, player)) {
-                            newEval += 5 * checkColor;
+                            newEval += 20 * checkColor;
                         }
                     }
                 }
@@ -235,14 +233,6 @@ public class MillerDrew extends Player {
             }
         }
         return list;
-    }
-
-    public int getEval() {
-        return this.chosenScore;
-    }
-
-    public Position getMove() {
-        return this.chosenMove;
     }
 }
 
