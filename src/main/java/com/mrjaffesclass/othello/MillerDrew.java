@@ -7,8 +7,7 @@ import java.util.ArrayList;
  */
 public class MillerDrew extends Player {
 
-    private final static int MAX_DEPTH = 8;
-    private int chosenScore;
+    private final static int MAX_DEPTH = 6;
     private Position chosenMove;
 
     /**
@@ -24,16 +23,20 @@ public class MillerDrew extends Player {
     public Position getNextMove(Board board) {
         /* Your code goes here */
         //call minimax here 
-        int miniMax = MiniMax(board, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, true, null, this);
+        int miniMax = MiniMax(board, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, true, this);
         return chosenMove;
     }
 
-    public int MiniMax(Board board, int depth, int alpha, int beta, boolean isMaxPlayer, Position theMove, Player player) {
+    public int MiniMax(Board board, int depth, int alpha, int beta, boolean isMaxPlayer, Player player) {
+        if (depth == 0 && board.noMovesAvailable(isMaxPlayer ? player : new Player(player.getColor() * -1))) {
+            chosenMove = null;
+            return evaluate(board, isMaxPlayer,player);
+        }
         if (depth == MAX_DEPTH) {
-            return evaluate(board, player);
+            return evaluate(board, isMaxPlayer, player);
         } else {
-            ArrayList<Position> moves = getMoves(board, player);
             if (isMaxPlayer) {
+                ArrayList<Position> moves = getMoves(board, player);
                 int bestScore = Integer.MIN_VALUE;
                 for (Position move : moves) {
                     Board board2 = new Board();
@@ -45,7 +48,7 @@ public class MillerDrew extends Player {
                         }
                     }
                     board2.makeMove(player, move);
-                    int score = MiniMax(board2, depth + 1, alpha, beta, false, theMove, player);
+                    int score = MiniMax(board2, depth + 1, alpha, beta, false, player);
                     if (score > bestScore) {
                         bestScore = score;
                         if (depth == 0) {
@@ -59,6 +62,7 @@ public class MillerDrew extends Player {
                 }
                 return bestScore;
             } else {
+                ArrayList<Position> moves = getMoves(board, new Player(player.getColor() * -1));
                 int bestScore = Integer.MAX_VALUE;
                 for (Position move : moves) {
                     Board board2 = new Board();
@@ -70,7 +74,7 @@ public class MillerDrew extends Player {
                         }
                     }
                     board2.makeMove(player, move);
-                    int score = MiniMax(board2, depth + 1, alpha, beta, false, theMove, player);
+                    int score = MiniMax(board2, depth + 1, alpha, beta, false, player);
                     if (score < bestScore) {
                         bestScore = score;
                         if (depth == 0) {
@@ -87,27 +91,53 @@ public class MillerDrew extends Player {
         }
     }
 
-    public int evaluate(Board gameBoard, Player player) {
+    public int evaluate(Board gameBoard, boolean isMaxPlayer, Player player) {
         boolean corners = cornersTaken(gameBoard, player);
         boolean lateGame = cornersTaken(gameBoard, player) || gameBoard.countSquares(0) <= 30;
+        Player tempPlayer = (isMaxPlayer? (new Player(player.getColor())) : (new Player(player.getColor() * -1)));
+        ArrayList<Position> moves = getMoves(gameBoard, tempPlayer);
         int newEval = 0;
         for (int i = 0; i < Constants.SIZE; i++) {
             for (int j = 0; j < Constants.SIZE; j++) {
                 Square tempSquare = gameBoard.getSquare(new Position(i, j));
                 int checkColor = tempSquare.getStatus();
                 if (checkColor != 0) {
-                    if (!corners) {
+                    if (!lateGame) {
                         if (isCorner(i, j)) {
-                            newEval += 400 * checkColor;
+                            newEval += 1000 * checkColor;
+                        }
+                        if (isNextToCorner(i, j)) {
+                            newEval -= 10 * checkColor;
+                        }
+                        if (isCSquare(i, j)) {
+                            newEval += 10 * checkColor;
+                        }
+                        if (isEdge(i, j)) {
+                            newEval += 10 * checkColor;
+                        }
+                        if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
+                            newEval -= 100 * checkColor;
+                        }
+                        if (isStable(i, j, gameBoard, checkColor, player)) {
+                            newEval += 100 * checkColor;
                         }
                     } else {
+                        if (!corners) {
+                            if (isCorner(i, j)) {
+                                newEval += 100;
+                            }
+                            if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
+                                newEval -= 10 * checkColor;
+                            }
+                        }
                         if (isStable(i, j, gameBoard, checkColor, player)) {
-                            newEval += 20 * checkColor;
+                            newEval += 1000 * checkColor;
                         }
                     }
                 }
             }
         }
+        newEval += moves.size() * 10;
         newEval = newEval * player.getColor();
         return newEval;
     }
@@ -119,11 +149,43 @@ public class MillerDrew extends Player {
                 || r == Constants.SIZE - 1 && c == Constants.SIZE - 1);
     }
 
+    public boolean isNextToCorner(int r, int c) {
+        boolean below = (r == 1 && c == 0) || (r == 1 && c == Constants.SIZE - 1);
+        boolean above = (r == Constants.SIZE - 2 && c == 0) || (r == Constants.SIZE - 2 && c == Constants.SIZE - 1);
+        boolean right = (r == 0 && c == 1) || (r == Constants.SIZE - 1 && c == 1);
+        boolean left = (r == 0 && c == Constants.SIZE - 2) || (r == Constants.SIZE - 1 && c == Constants.SIZE - 2);
+        return below
+                || above
+                || left
+                || right;
+    }
+
+    public boolean isDiagonalToCornerAndWithoutCorner(int r, int c, Board gameBoard, Player player) {
+        return (r == 1 && c == 1 && gameBoard.getSquare(player, 1, 1).getStatus() != gameBoard.getSquare(player, 0, 0).getStatus())
+                || (r == 1 && c == Constants.SIZE - 2 && gameBoard.getSquare(player, 1, Constants.SIZE - 2).getStatus() != gameBoard.getSquare(player, 0, Constants.SIZE - 1).getStatus())
+                || (r == Constants.SIZE - 2 && c == 1 && gameBoard.getSquare(player, Constants.SIZE - 2, 1).getStatus() != gameBoard.getSquare(player, Constants.SIZE - 1, 0).getStatus())
+                || (r == Constants.SIZE - 2 && c == Constants.SIZE - 2 && gameBoard.getSquare(player, Constants.SIZE - 2, Constants.SIZE - 2).getStatus() != gameBoard.getSquare(player, Constants.SIZE - 1, Constants.SIZE - 1).getStatus());
+    }
+
     public boolean cornersTaken(Board gameBoard, Player player) {
         return (gameBoard.getSquare(player, 0, 0).getStatus() != 0
                 && gameBoard.getSquare(player, 0, Constants.SIZE - 1).getStatus() != 0
                 && gameBoard.getSquare(player, Constants.SIZE - 1, 0).getStatus() != 0
                 && gameBoard.getSquare(player, Constants.SIZE - 1, Constants.SIZE - 1).getStatus() != 0);
+    }
+
+    public boolean isCSquare(int r, int c) {
+        return (r == 2 && c == 2)
+                || (r == 2 && c == 5)
+                || (r == 5 && c == 2)
+                || (r == 5 && c == 5);
+    }
+
+    public boolean isEdge(int r, int c) {
+        return (r <= 5 && r >= 2 && c == 0)
+                || (r <= 5 && r >= 2 && c == Constants.SIZE - 1)
+                || (r == 0 && 2 <= c && c <= 5)
+                || (r == Constants.SIZE - 1 && 2 <= c && c <= 5);
     }
 
     public boolean isStable(int r, int c, Board gameBoard, int color, Player player) {
@@ -135,6 +197,7 @@ public class MillerDrew extends Player {
     }
 
     public boolean upDown(int r, int c, Board gameBoard, int color, Player player) {
+        // Loop for checking up and down stability
         for (int i = r; i >= 0; i--) {
             if (gameBoard.getSquare(player, i, c).getStatus() != color) {
                 break;
@@ -154,6 +217,7 @@ public class MillerDrew extends Player {
         return false;
     }
 
+// Similarly, update the other direction-checking methods in a similar manner.
     public boolean leftRight(int r, int c, Board gameBoard, int color, Player player) {
         for (int i = c; i >= 0; i--) {
             if (gameBoard.getSquare(player, r, i).getStatus() != color) {
@@ -200,7 +264,7 @@ public class MillerDrew extends Player {
 
     public boolean bottomLeftTopRight(int r, int c, Board gameBoard, int color, Player player) {
         int j = c;
-        for (int i = r; i >= 0; i++) {
+        for (int i = r; i >= 0; i--) {
             if (gameBoard.getSquare(player, i, j).getStatus() != color) {
                 break;
             }
@@ -210,7 +274,7 @@ public class MillerDrew extends Player {
             j--;
         }
         int j2 = c;
-        for (int i = r; i < Constants.SIZE; i--) {
+        for (int i = r; i < Constants.SIZE; i++) {
             if (gameBoard.getSquare(player, i, j2).getStatus() != color) {
                 break;
             }
@@ -235,4 +299,3 @@ public class MillerDrew extends Player {
         return list;
     }
 }
-

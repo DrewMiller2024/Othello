@@ -20,8 +20,8 @@ public class Othello {
 		String p2Name = player2.getClass().getSimpleName();
 		for(int i = 0; i < repeats; i++) {
 			System.out.println("Game: " + (i+1));
-			ControllerNoPrint c = new ControllerNoPrint( 
-			//Controller c = new Controller(
+			//ControllerNoPrint c = new ControllerNoPrint( 
+			Controller c = new Controller(
 			//ControllerRandomTesting c = new ControllerRandomTesting(
 				player1, player2
 			);
@@ -40,7 +40,7 @@ public class Othello {
 		System.out.printf("In %d games, %s won: %d, %s won: %d, and %d were ties\n", repeats,p1Name, blackWins,p2Name, whiteWins, ties);
 	}
 	public static void main(String[] args) throws InterruptedException {
-		int repetitions = 20;
+		int repetitions = 5;
 		simulation(repetitions, new TestPlayer(Constants.BLACK), new MillerDrew(Constants.WHITE));
 		//simulation(repetitions, new RyanPlayerEvolved(Constants.BLACK), new TestPlayer(Constants.WHITE));	
 		System.exit(0);
