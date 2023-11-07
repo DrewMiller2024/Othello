@@ -111,7 +111,7 @@ public class MillerDrew extends Player {
                             newEval -= 100 * checkColor;
                         }
                         if (isStable(i, j, gameBoard, checkColor, player)) {
-                            newEval += 100 * checkColor;
+                            newEval += 200 * checkColor;
                         } else {
                             /*if (isNextToCorner(i, j)) {
                                 newEval -= 10 * checkColor;
@@ -129,7 +129,7 @@ public class MillerDrew extends Player {
                             }
                         }
                         if (isStable(i, j, gameBoard, checkColor, player)) {
-                            newEval += 100 * checkColor;
+                            newEval += 200 * checkColor;
                         }
                     }
                 } else {
@@ -259,9 +259,15 @@ public class MillerDrew extends Player {
     }
 
     public boolean upDown(int r, int c, Board gameBoard, int color, Player player) {
-        // Loop for checking up and down stability
+        boolean downOpp = false;
+        boolean downSpace = false;
         for (int i = r; i >= 0; i--) {
-            if (gameBoard.getSquare(player, i, c).getStatus() != color) {
+            int squareColor = gameBoard.getSquare(player, i, c).getStatus();
+            if (squareColor == 0) {
+                downSpace = true;
+                break;
+            } else if (squareColor == color * -1) {
+                downOpp = true;
                 break;
             }
             if (i <= 0) {
@@ -269,8 +275,16 @@ public class MillerDrew extends Player {
             }
         }
         for (int i = r; i < Constants.SIZE; i++) {
-            if (gameBoard.getSquare(player, i, c).getStatus() != color) {
-                break;
+            int squareColor = gameBoard.getSquare(player, i, c).getStatus();
+            if (squareColor == 0) {
+                if (downOpp) {
+                    break;
+                }
+            }
+            if (squareColor == color * -1) {
+                if (downSpace) {
+                    break;
+                }
             }
             if (i >= Constants.SIZE - 1) {
                 return true;
@@ -279,10 +293,17 @@ public class MillerDrew extends Player {
         return false;
     }
 
-// Similarly, update the other direction-checking methods in a similar manner.
     public boolean leftRight(int r, int c, Board gameBoard, int color, Player player) {
+        boolean leftOpp = false;
+        boolean leftSpace = false;
         for (int i = c; i >= 0; i--) {
-            if (gameBoard.getSquare(player, r, i).getStatus() != color) {
+            int squareColor = gameBoard.getSquare(player, r, i).getStatus();
+            if (squareColor == 0) {
+                leftSpace = true;
+                break;
+            }
+            if (squareColor == color * -1) {
+                leftOpp = true;
                 break;
             }
             if (i <= 0) {
@@ -290,8 +311,17 @@ public class MillerDrew extends Player {
             }
         }
         for (int i = c; i < Constants.SIZE; i++) {
-            if (gameBoard.getSquare(player, r, i).getStatus() != color) {
-                break;
+            int squareColor = gameBoard.getSquare(player, r, i).getStatus();
+            if (squareColor == 0) {
+                if (leftOpp) {
+                    break;
+                }
+      
+            }
+            if (squareColor == color * -1) {
+                if (leftSpace) {
+                    break;
+                }
             }
             if (i >= Constants.SIZE - 1) {
                 return true;
