@@ -374,7 +374,7 @@ public class MillerDrew extends Player {
         boolean bottomLeftOpp = false;
         boolean bottomLeftSpace = false;
         int j = c;
-        for (int i = r; i >= 0; i--) {
+        for (int i = r; i >= 0; i++) {
             int squareColor = gameBoard.getSquare(player, i, j).getStatus();
             if (squareColor == 0) {
                 bottomLeftSpace = true;
@@ -390,7 +390,7 @@ public class MillerDrew extends Player {
             j--;
         }
         int j2 = c;
-        for (int i = r; i < Constants.SIZE; i++) {
+        for (int i = r; i < Constants.SIZE; i--) {
             int squareColor = gameBoard.getSquare(player, i, j2).getStatus();
             if (squareColor == 0) {
                 break;
