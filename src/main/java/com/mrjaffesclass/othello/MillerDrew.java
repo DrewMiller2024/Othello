@@ -331,9 +331,17 @@ public class MillerDrew extends Player {
     }
 
     public boolean topLeftBottomRight(int r, int c, Board gameBoard, int color, Player player) {
+        boolean topLeftOpp = false;
+        boolean topLeftSpace = false;
         int j = c;
         for (int i = r; i >= 0; i--) {
-            if (gameBoard.getSquare(player, i, j).getStatus() != color) {
+            int squareColor = gameBoard.getSquare(player, i, j).getStatus();
+            if (squareColor == 0) {
+                topLeftSpace = true;
+                break;
+            }
+            if (squareColor == color * -1) {
+                topLeftOpp = true;
                 break;
             }
             if (i <= 0 || j <= 0) {
@@ -343,8 +351,16 @@ public class MillerDrew extends Player {
         }
         int j2 = c;
         for (int i = r; i < Constants.SIZE; i++) {
-            if (gameBoard.getSquare(player, i, j2).getStatus() != color) {
-                break;
+            int squareColor = gameBoard.getSquare(player, i, j2).getStatus();
+            if (squareColor == 0) {
+                if (topLeftOpp) {
+                    break;
+                }
+            }
+            if (squareColor == color * -1) {
+                if (topLeftSpace) {
+                    break;
+                }
             }
             if (i >= Constants.SIZE - 1 || j2 >= Constants.SIZE - 1) {
                 return true;
@@ -355,9 +371,17 @@ public class MillerDrew extends Player {
     }
 
     public boolean bottomLeftTopRight(int r, int c, Board gameBoard, int color, Player player) {
+        boolean bottomLeftOpp = false;
+        boolean bottomLeftSpace = false;
         int j = c;
         for (int i = r; i >= 0; i--) {
-            if (gameBoard.getSquare(player, i, j).getStatus() != color) {
+            int squareColor = gameBoard.getSquare(player, i, j).getStatus();
+            if (squareColor == 0) {
+                bottomLeftSpace = true;
+                break;
+            }
+            if (squareColor == color * -1) {
+                bottomLeftOpp = true;
                 break;
             }
             if (i >= Constants.SIZE - 1 || j <= 0) {
@@ -367,8 +391,16 @@ public class MillerDrew extends Player {
         }
         int j2 = c;
         for (int i = r; i < Constants.SIZE; i++) {
-            if (gameBoard.getSquare(player, i, j2).getStatus() != color) {
-                break;
+            int squareColor = gameBoard.getSquare(player, i, j2).getStatus();
+            if (squareColor == 0) {
+                if (bottomLeftOpp) {
+                    break;
+                }
+            }
+            if (squareColor == color * -1) {
+                if (bottomLeftSpace) {
+                    break;
+                }
             }
             if (i <= 0 || j2 >= Constants.SIZE - 1) {
                 return true;
