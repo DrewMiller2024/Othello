@@ -92,21 +92,36 @@ public class MillerDrew2 extends Player {
     }
 
     public int evaluate(Board gameBoard, boolean isMaxPlayer, Player player) {
-        //boolean lateGame = cornersTaken(gameBoard, player) || gameBoard.countSquares(0) <= 30;
+        boolean lateGame = cornersTaken(gameBoard, player) || gameBoard.countSquares(0) <= 30;
+        Player tempPlayer = (isMaxPlayer ? (new Player(player.getColor())) : (new Player(player.getColor() * -1)));
         int newEval = 0;
         for (int i = 0; i < Constants.SIZE; i++) {
             for (int j = 0; j < Constants.SIZE; j++) {
                 Square tempSquare = gameBoard.getSquare(new Position(i, j));
                 int checkColor = tempSquare.getStatus();
                 if (checkColor != 0) {
-                    if (isCorner(i, j)) {
-                        newEval += 200 * checkColor;
-                    } else if (isStable(i, j, gameBoard, checkColor, player)) {
-                        if (isEdge(i, j)) {
-                            newEval += 300 * checkColor;
-                        } else {
-                            newEval += 200 * checkColor;
+                    if (!lateGame) {
+                        if (isCorner(i, j)) {
+                            newEval += 1000 * checkColor;
+                        } else if (isStable(i, j, gameBoard, checkColor, player)) {
+                            if (isEdge(i, j)) {
+                                newEval += 150 * checkColor;
+                            } else {
+                                newEval += 100 * checkColor;
+                            }
                         }
+                    } else {
+                        if (isStable(i, j, gameBoard, checkColor, player)) {
+                            newEval += 100 * checkColor;
+                        }
+                    }
+                }
+                if (isCorner(i, j)) {
+                    if (givesUpCorner(i, j, tempPlayer, gameBoard)) {
+                        newEval -= 100 * tempPlayer.getColor();
+                    }
+                 {
+                        
                     }
                 }
             }
@@ -122,11 +137,71 @@ public class MillerDrew2 extends Player {
                 || r == Constants.SIZE - 1 && c == Constants.SIZE - 1);
     }
 
+    public boolean cornersTaken(Board gameBoard, Player player) {
+        return (gameBoard.getSquare(player, 0, 0).getStatus() != 0
+                && gameBoard.getSquare(player, 0, Constants.SIZE - 1).getStatus() != 0
+                && gameBoard.getSquare(player, Constants.SIZE - 1, 0).getStatus() != 0
+                && gameBoard.getSquare(player, Constants.SIZE - 1, Constants.SIZE - 1).getStatus() != 0);
+    }
+
+    public boolean givesUpCorner(int r, int c, Player tempPlayer, Board gameBoard) {
+        if (r == 0 && c == 0) {
+            if (gameBoard.getSquare(tempPlayer, 1, 1).getStatus() == tempPlayer.getColor()) {
+                int j = 2;
+                for (int i = 2; i < Constants.SIZE; i++) {
+                    if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
+                        return true;
+                    } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    j++;
+                }
+            }
+        } else if (r == 0 && c == Constants.SIZE - 1) {
+            if (gameBoard.getSquare(tempPlayer, 1, Constants.SIZE - 2).getStatus() == tempPlayer.getColor()) {
+                int j = 5;
+                for (int i = 2; i < Constants.SIZE; i++) {
+                    if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
+                        return true;
+                    } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    j--;
+                }
+            }
+        } else if (r == Constants.SIZE - 1 && c == 0) {
+            if (gameBoard.getSquare(tempPlayer, Constants.SIZE - 2, 1).getStatus() == tempPlayer.getColor()) {
+                int j = 2;
+                for (int i = 5; i < Constants.SIZE; i--) {
+                    if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
+                        return true;
+                    } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    j++;
+                }
+            }
+        } else {
+            if (gameBoard.getSquare(tempPlayer, Constants.SIZE - 2, Constants.SIZE - 2).getStatus() == tempPlayer.getColor()) {
+                int j = 5;
+                for (int i = 5; i < Constants.SIZE; i--) {
+                    if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
+                        return true;
+                    } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    j--;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isEdge(int r, int c) {
-        return (r <= 6 && r >= 1 && c == 0)
-                || (r <= 6 && r >= 1 && c == Constants.SIZE - 1)
-                || (r == 0 && 1 <= c && c <= 6)
-                || (r == Constants.SIZE - 1 && 1 <= c && c <= 6);
+        return (r == 0)
+                || (r == Constants.SIZE - 1)
+                || (c == 0)
+                || (c == Constants.SIZE - 1);
     }
 
     public boolean isStable(int r, int c, Board gameBoard, int color, Player player) {

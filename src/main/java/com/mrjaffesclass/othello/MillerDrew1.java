@@ -93,7 +93,9 @@ public class MillerDrew1 extends Player {
 
     public int evaluate(Board gameBoard, boolean isMaxPlayer, Player player) {
         boolean cornersTaken = cornersTaken(gameBoard, player);
-        boolean lateGame = cornersTaken(gameBoard, player) || gameBoard.countSquares(0) <= 30;
+        int count = gameBoard.countSquares(0);
+        boolean lateGame = cornersTaken || count <= 30;
+        boolean superLateGame = count < 4;
         Player tempPlayer = (isMaxPlayer ? (new Player(player.getColor())) : (new Player(player.getColor() * -1)));
         ArrayList<Position> moves = getMoves(gameBoard, tempPlayer);
         int newEval = 0;
@@ -111,8 +113,11 @@ public class MillerDrew1 extends Player {
                     if (!lateGame) {
                         if (isCorner(i, j)) {
                             newEval += 2000 * checkColor;
-                        } else if (isCSquare(i, j)) {
-                            newEval += 10 * checkColor;
+                        } else if (isFirstEdge) {
+                            newEval += 50 * checkColor;
+                        } 
+                        else if (isInsideDiagonal(i, j)) {
+                            newEval += 20 * checkColor;
                         } else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
                             newEval -= 100 * checkColor;
                         }
@@ -126,20 +131,26 @@ public class MillerDrew1 extends Player {
                                 newEval -= 10 * checkColor;
                             }
                         }
-                    } else {
-                        /*
+                    } else { 
                         if (!cornersTaken) {
                             if (isCorner(i, j)) {
-                                newEval += 100;
-                            } else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
+                                newEval += 200;
+                            } /*else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
                                 newEval -= 10 * checkColor;
-                            }
-                        }*/
+                            }*/
+                        }
                         if (isStable(i, j, gameBoard, checkColor, player)) {
                             newEval += 200 * checkColor;
+                        } else {
+                            if (isNextToCorner(i, j)) {
+                                newEval -= 10 * checkColor;
+                            }
                         }
                     }
-                }else {
+                    if (superLateGame) {
+                        newEval += 10 * checkColor;
+                    }
+                } else {
                     if (isCorner(i, j)) {
                         if (givesUpCorner(i, j, tempPlayer, gameBoard)) {
                             if (!lateGame) {
@@ -243,18 +254,22 @@ public class MillerDrew1 extends Player {
                 && gameBoard.getSquare(player, Constants.SIZE - 1, Constants.SIZE - 1).getStatus() != 0);
     }
 
-    public boolean isCSquare(int r, int c) {
+    public boolean isInsideDiagonal(int r, int c) {
         return (r == 2 && c == 2)
+                || (r == 3 && c == 3)
+                || (r == 4 && c == 4)
+                || (r == 5 && c == 5)
                 || (r == 2 && c == 5)
-                || (r == 5 && c == 2)
-                || (r == 5 && c == 5);
+                || (r == 3 && c == 4)
+                || (r == 4 && c == 3)
+                || (r == 5 && c == 2);
     }
 
     public boolean isEdge(int r, int c) {
-        return (r <= 6 && r >= 1 && c == 0)
-                || (r <= 6 && r >= 1 && c == Constants.SIZE - 1)
-                || (r == 0 && 1 <= c && c <= 6)
-                || (r == Constants.SIZE - 1 && 1 <= c && c <= 6);
+        return (r == 0)
+                || (r == Constants.SIZE - 1)
+                || (c == 0)
+                || (c == Constants.SIZE - 1);
     }
 
     public boolean isStable(int r, int c, Board gameBoard, int color, Player player) {
@@ -349,7 +364,7 @@ public class MillerDrew1 extends Player {
         }
         return false;
     }
-    
+
     public boolean leftRightIsFull(int r, int c, Board gameBoard, Player player) {
         for (int i = 0; i < Constants.SIZE; i++) {
             if (gameBoard.getSquare(player, r, i).getStatus() == 0) {
@@ -400,7 +415,7 @@ public class MillerDrew1 extends Player {
         }
         return false;
     }
-    
+
     public boolean tlbrIsFull(int r, int c, Board gameBoard, Player player) {
         while (r > 0 && c > 0) {
             r--;
@@ -412,7 +427,7 @@ public class MillerDrew1 extends Player {
                 return false;
             }
             if (j >= Constants.SIZE - 1) {
-               return false;
+                return false;
             }
         }
         return true;
@@ -459,7 +474,7 @@ public class MillerDrew1 extends Player {
         }
         return false;
     }
-    
+
     public boolean bltrIsFull(int r, int c, Board gameBoard, Player player) {
         while (r < Constants.SIZE - 1 && c > 0) {
             r++;
@@ -471,7 +486,7 @@ public class MillerDrew1 extends Player {
                 return false;
             }
             if (j >= Constants.SIZE - 1) {
-               return false;
+                return false;
             }
         }
         return true;

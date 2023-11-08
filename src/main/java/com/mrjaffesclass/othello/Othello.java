@@ -41,7 +41,7 @@ public class Othello {
 	}
 	public static void main(String[] args) throws InterruptedException {
 		int repetitions = 1;
-		simulation(repetitions, new MillerDrew1(Constants.BLACK), new MillerDrew2(Constants.WHITE));
+		simulation(repetitions, new MillerDrew1(Constants.BLACK), new RyanPlayer(Constants.WHITE));
 		//simulation(repetitions, new RyanPlayerEvolved(Constants.BLACK), new TestPlayer(Constants.WHITE));	
 		System.exit(0);
 	}
