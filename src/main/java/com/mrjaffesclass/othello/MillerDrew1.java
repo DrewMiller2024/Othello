@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Test player
  */
-public class MillerDrew extends Player {
+public class MillerDrew1 extends Player {
 
     private final static int MAX_DEPTH = 6;
     private Position chosenMove;
@@ -15,7 +15,7 @@ public class MillerDrew extends Player {
      *
      * @param color Player color: one of Constants.BLACK or Constants.WHITE
      */
-    public MillerDrew(int color) {
+    public MillerDrew1(int color) {
         super(color);
     }
 
@@ -102,6 +102,12 @@ public class MillerDrew extends Player {
                 Square tempSquare = gameBoard.getSquare(new Position(i, j));
                 int checkColor = tempSquare.getStatus();
                 if (checkColor != 0) {
+                    /*
+                    if (isCorner(i, j)) {
+                        newEval += 200 * checkColor;
+                    } else if (isStable(i, j, gameBoard, checkColor, player)) {
+                        newEval += 200 * checkColor;
+                    }*/
                     if (!lateGame) {
                         if (isCorner(i, j)) {
                             newEval += 2000 * checkColor;
@@ -121,18 +127,19 @@ public class MillerDrew extends Player {
                             }
                         }
                     } else {
+                        /*
                         if (!cornersTaken) {
                             if (isCorner(i, j)) {
                                 newEval += 100;
                             } else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
                                 newEval -= 10 * checkColor;
                             }
-                        }
+                        }*/
                         if (isStable(i, j, gameBoard, checkColor, player)) {
                             newEval += 200 * checkColor;
                         }
                     }
-                } else {
+                }else {
                     if (isCorner(i, j)) {
                         if (givesUpCorner(i, j, tempPlayer, gameBoard)) {
                             if (!lateGame) {
@@ -259,15 +266,13 @@ public class MillerDrew extends Player {
     }
 
     public boolean upDown(int r, int c, Board gameBoard, int color, Player player) {
-        boolean downOpp = false;
-        boolean downSpace = false;
+        boolean upOpp = false;
         for (int i = r; i >= 0; i--) {
             int squareColor = gameBoard.getSquare(player, i, c).getStatus();
             if (squareColor == 0) {
-                downSpace = true;
                 break;
             } else if (squareColor == color * -1) {
-                downOpp = true;
+                upOpp = true;
                 break;
             }
             if (i <= 0) {
@@ -280,10 +285,14 @@ public class MillerDrew extends Player {
                 break;
             }
             if (squareColor == color * -1) {
-                if (downSpace) {
-                    break;
+                if (upOpp) {
+                    if (upDownIsFull(i, c, gameBoard, player)) {
+                        return true;
+                    } else {
+                        break;
+                    }
                 } else {
-                    return true;
+                    break;
                 }
             }
             if (i >= Constants.SIZE - 1) {
@@ -293,13 +302,20 @@ public class MillerDrew extends Player {
         return false;
     }
 
+    public boolean upDownIsFull(int r, int c, Board gameBoard, Player player) {
+        for (int i = 0; i < Constants.SIZE; i++) {
+            if (gameBoard.getSquare(player, i, c).getStatus() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean leftRight(int r, int c, Board gameBoard, int color, Player player) {
         boolean leftOpp = false;
-        boolean leftSpace = false;
         for (int i = c; i >= 0; i--) {
             int squareColor = gameBoard.getSquare(player, r, i).getStatus();
             if (squareColor == 0) {
-                leftSpace = true;
                 break;
             }
             if (squareColor == color * -1) {
@@ -317,10 +333,14 @@ public class MillerDrew extends Player {
 
             }
             if (squareColor == color * -1) {
-                if (leftSpace) {
-                    break;
+                if (leftOpp) {
+                    if (leftRightIsFull(r, i, gameBoard, player)) {
+                        return true;
+                    } else {
+                        break;
+                    }
                 } else {
-                    return true;
+                    break;
                 }
             }
             if (i >= Constants.SIZE - 1) {
@@ -329,15 +349,22 @@ public class MillerDrew extends Player {
         }
         return false;
     }
+    
+    public boolean leftRightIsFull(int r, int c, Board gameBoard, Player player) {
+        for (int i = 0; i < Constants.SIZE; i++) {
+            if (gameBoard.getSquare(player, r, i).getStatus() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public boolean topLeftBottomRight(int r, int c, Board gameBoard, int color, Player player) {
         boolean topLeftOpp = false;
-        boolean topLeftSpace = false;
         int j = c;
         for (int i = r; i >= 0; i--) {
             int squareColor = gameBoard.getSquare(player, i, j).getStatus();
             if (squareColor == 0) {
-                topLeftSpace = true;
                 break;
             }
             if (squareColor == color * -1) {
@@ -356,10 +383,14 @@ public class MillerDrew extends Player {
                 break;
             }
             if (squareColor == color * -1) {
-                if (topLeftSpace) {
-                    break;
+                if (topLeftOpp) {
+                    if (tlbrIsFull(i, j2, gameBoard, player)) {
+                        return true;
+                    } else {
+                        break;
+                    }
                 } else {
-                    return true;
+                    break;
                 }
             }
             if (i >= Constants.SIZE - 1 || j2 >= Constants.SIZE - 1) {
@@ -369,15 +400,30 @@ public class MillerDrew extends Player {
         }
         return false;
     }
+    
+    public boolean tlbrIsFull(int r, int c, Board gameBoard, Player player) {
+        while (r > 0 && c > 0) {
+            r--;
+            c--;
+        }
+        int j = c;
+        for (int i = r; i < Constants.SIZE; i++) {
+            if (gameBoard.getSquare(player, i, j).getStatus() == 0) {
+                return false;
+            }
+            if (j >= Constants.SIZE - 1) {
+               return false;
+            }
+        }
+        return true;
+    }
 
     public boolean bottomLeftTopRight(int r, int c, Board gameBoard, int color, Player player) {
         boolean bottomLeftOpp = false;
-        boolean bottomLeftSpace = false;
         int j = c;
         for (int i = r; i <= Constants.SIZE - 1; i++) {
             int squareColor = gameBoard.getSquare(player, i, j).getStatus();
             if (squareColor == 0) {
-                bottomLeftSpace = true;
                 break;
             }
             if (squareColor == color * -1) {
@@ -396,10 +442,14 @@ public class MillerDrew extends Player {
                 break;
             }
             if (squareColor == color * -1) {
-                if (bottomLeftSpace) {
-                    break;
+                if (bottomLeftOpp) {
+                    if (bltrIsFull(i, j2, gameBoard, player)) {
+                        return true;
+                    } else {
+                        break;
+                    }
                 } else {
-                    return true;
+                    break;
                 }
             }
             if (i <= 0 || j2 >= Constants.SIZE - 1) {
@@ -408,6 +458,23 @@ public class MillerDrew extends Player {
             j2++;
         }
         return false;
+    }
+    
+    public boolean bltrIsFull(int r, int c, Board gameBoard, Player player) {
+        while (r < Constants.SIZE - 1 && c > 0) {
+            r++;
+            c--;
+        }
+        int j = c;
+        for (int i = r; i >= 0; i--) {
+            if (gameBoard.getSquare(player, i, j).getStatus() == 0) {
+                return false;
+            }
+            if (j >= Constants.SIZE - 1) {
+               return false;
+            }
+        }
+        return true;
     }
 
     public ArrayList<Position> getMoves(Board board, Player playerToCheck) {
