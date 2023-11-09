@@ -40,8 +40,8 @@ public class Othello {
 		System.out.printf("In %d games, %s won: %d, %s won: %d, and %d were ties\n", repeats,p1Name, blackWins,p2Name, whiteWins, ties);
 	}
 	public static void main(String[] args) throws InterruptedException {
-		int repetitions = 1;
-		simulation(repetitions, new MillerDrew1(Constants.BLACK), new RyanPlayer(Constants.WHITE));
+		int repetitions = 10;
+		simulation(repetitions, new RyanPlayer(Constants.BLACK), new MillerDrew1(Constants.WHITE));
 		//simulation(repetitions, new RyanPlayerEvolved(Constants.BLACK), new TestPlayer(Constants.WHITE));	
 		System.exit(0);
 	}

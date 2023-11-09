@@ -109,7 +109,7 @@ public class MillerDrew2 extends Player {
                             } else {
                                 newEval += 100 * checkColor;
                             }
-                        }
+                        } 
                     } else {
                         if (isStable(i, j, gameBoard, checkColor, player)) {
                             newEval += 100 * checkColor;
@@ -197,11 +197,28 @@ public class MillerDrew2 extends Player {
         return false;
     }
 
-    public boolean isEdge(int r, int c) {
+  public boolean isEdge(int r, int c) {
         return (r == 0)
                 || (r == Constants.SIZE - 1)
                 || (c == 0)
                 || (c == Constants.SIZE - 1);
+    }
+
+    public boolean isOnlyEdge(int r, int c, Board gameBoard, Player player, int checkColor) {
+        if (r == 0 || r == Constants.SIZE - 1) {
+            for (int i = 0; i < Constants.SIZE; i++) {
+                if (gameBoard.getSquare(player, r, i).getStatus() == checkColor * -1) {
+                    return false;
+                }
+            }
+        } else if (c == 0 || c == Constants.SIZE -1) {
+            for (int i = 0; i < Constants.SIZE; i++) {
+                if (gameBoard.getSquare(player, i, c).getStatus() == checkColor *-1) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean isStable(int r, int c, Board gameBoard, int color, Player player) {

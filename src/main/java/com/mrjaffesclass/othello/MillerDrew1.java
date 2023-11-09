@@ -95,7 +95,7 @@ public class MillerDrew1 extends Player {
         boolean cornersTaken = cornersTaken(gameBoard, player);
         int count = gameBoard.countSquares(0);
         boolean lateGame = cornersTaken || count <= 30;
-        boolean superLateGame = count < 4;
+        boolean superLateGame = (count == 0);
         Player tempPlayer = (isMaxPlayer ? (new Player(player.getColor())) : (new Player(player.getColor() * -1)));
         ArrayList<Position> moves = getMoves(gameBoard, tempPlayer);
         int newEval = 0;
@@ -112,12 +112,13 @@ public class MillerDrew1 extends Player {
                     }*/
                     if (!lateGame) {
                         if (isCorner(i, j)) {
-                            newEval += 2000 * checkColor;
-                        } else if (isFirstEdge) {
-                            newEval += 50 * checkColor;
-                        } 
-                        else if (isInsideDiagonal(i, j)) {
-                            newEval += 20 * checkColor;
+                            newEval += 5000 * checkColor;
+                        }/* else if (isEdge(i, j)) {
+                            if (isOnlyEdge(i, j, gameBoard, player, checkColor)) {
+                                newEval += 50 * checkColor;
+                            }
+                        }*/ else if (isInsideDiagonal(i, j)) {
+                            newEval += 10 * checkColor;
                         } else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
                             newEval -= 100 * checkColor;
                         }
@@ -125,39 +126,39 @@ public class MillerDrew1 extends Player {
                             newEval += 200 * checkColor;
                         } else {
                             if (isNextToCorner(i, j)) {
-                                newEval -= 10 * checkColor;
+                                newEval -= 100 * checkColor;
                             }
                             if (isEdge(i, j)) {
                                 newEval -= 10 * checkColor;
                             }
                         }
-                    } else { 
-                        if (!cornersTaken) {
+                    } else {
+                        /*if (!cornersTaken) {
                             if (isCorner(i, j)) {
                                 newEval += 200;
-                            } /*else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
-                                newEval -= 10 * checkColor;
-                            }*/
-                        }
+                            }
+                            else if (isDiagonalToCornerAndWithoutCorner(i, j, gameBoard, player)) {
+                                newEval -= 100 * checkColor;
+                            }
+                        }*/
                         if (isStable(i, j, gameBoard, checkColor, player)) {
                             newEval += 200 * checkColor;
-                        } else {
+                        }/* else {
                             if (isNextToCorner(i, j)) {
                                 newEval -= 10 * checkColor;
                             }
-                        }
-                    }
-                    if (superLateGame) {
-                        newEval += 10 * checkColor;
+                        }*/
+                    } if (superLateGame) {
+                        newEval += 100 * checkColor;
                     }
                 } else {
                     if (isCorner(i, j)) {
                         if (givesUpCorner(i, j, tempPlayer, gameBoard)) {
                             if (!lateGame) {
                                 newEval -= 1000 * tempPlayer.getColor();
-                            } else {
+                            }/* else {
                                 newEval -= 100 * tempPlayer.getColor();
-                            }
+                            }*/
                         }
                     }
                 }
@@ -197,6 +198,9 @@ public class MillerDrew1 extends Player {
                     } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
                         break;
                     }
+                    if (j >= Constants.SIZE -1) {
+                        break;
+                    }
                     j++;
                 }
             }
@@ -207,6 +211,9 @@ public class MillerDrew1 extends Player {
                     if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
                         return true;
                     } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    if (j <= 0) {
                         break;
                     }
                     j--;
@@ -221,6 +228,9 @@ public class MillerDrew1 extends Player {
                     } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
                         break;
                     }
+                    if (j >= Constants.SIZE - 1) {
+                        break;
+                    }
                     j++;
                 }
             }
@@ -231,6 +241,9 @@ public class MillerDrew1 extends Player {
                     if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == tempPlayer.getColor() * -1) {
                         return true;
                     } else if (gameBoard.getSquare(tempPlayer, i, j).getStatus() == 0) {
+                        break;
+                    }
+                    if (j <= 0) {
                         break;
                     }
                     j--;
@@ -272,6 +285,23 @@ public class MillerDrew1 extends Player {
                 || (c == Constants.SIZE - 1);
     }
 
+    public boolean isOnlyEdge(int r, int c, Board gameBoard, Player player, int checkColor) {
+        if (r == 0 || r == Constants.SIZE - 1) {
+            for (int i = 0; i < Constants.SIZE; i++) {
+                if (gameBoard.getSquare(player, r, i).getStatus() == checkColor * -1) {
+                    return false;
+                }
+            }
+        } else if (c == 0 || c == Constants.SIZE -1) {
+            for (int i = 0; i < Constants.SIZE; i++) {
+                if (gameBoard.getSquare(player, i, c).getStatus() == checkColor *-1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean isStable(int r, int c, Board gameBoard, int color, Player player) {
         boolean ud = upDown(r, c, gameBoard, color, player);
         boolean lr = leftRight(r, c, gameBoard, color, player);
@@ -301,11 +331,12 @@ public class MillerDrew1 extends Player {
             }
             if (squareColor == color * -1) {
                 if (upOpp) {
-                    if (upDownIsFull(i, c, gameBoard, player)) {
+                    /*if (upDownIsFull(i, c, gameBoard, player)) {
                         return true;
                     } else {
                         break;
-                    }
+                    }*/
+                    return true;
                 } else {
                     break;
                 }
@@ -349,11 +380,12 @@ public class MillerDrew1 extends Player {
             }
             if (squareColor == color * -1) {
                 if (leftOpp) {
-                    if (leftRightIsFull(r, i, gameBoard, player)) {
+                    return true;
+                    /*if (leftRightIsFull(r, i, gameBoard, player)) {
                         return true;
                     } else {
                         break;
-                    }
+                    }*/
                 } else {
                     break;
                 }
@@ -399,11 +431,12 @@ public class MillerDrew1 extends Player {
             }
             if (squareColor == color * -1) {
                 if (topLeftOpp) {
-                    if (tlbrIsFull(i, j2, gameBoard, player)) {
+                    /*if (tlbrIsFull(i, j2, gameBoard, player)) {
                         return true;
                     } else {
                         break;
-                    }
+                    }*/
+                    return true;
                 } else {
                     break;
                 }
@@ -458,11 +491,12 @@ public class MillerDrew1 extends Player {
             }
             if (squareColor == color * -1) {
                 if (bottomLeftOpp) {
-                    if (bltrIsFull(i, j2, gameBoard, player)) {
+                    /*if (bltrIsFull(i, j2, gameBoard, player)) {
                         return true;
                     } else {
                         break;
-                    }
+                    }*/
+                    return true;
                 } else {
                     break;
                 }
